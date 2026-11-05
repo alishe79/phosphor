@@ -336,6 +336,17 @@ If you use an AI assistant, you agree that:
 7. **Mind secrets and licences.** Do not paste tokens, private data or data from your `data.json` into AI tools or into issues. Do not submit code you know or suspect was copied from a project with an incompatible licence.
 8. **Stay in the loop.** If a maintainer asks a question about your change, answer it yourself. Pasting a model's reply that you have not understood or checked is not acceptable.
 
+### AI agents as contributors
+
+Autonomous or semi-autonomous coding agents (for example Claude Code or similar tools) may open issues and pull requests too, under the same rules as everyone else, plus:
+
+- **A human operator is accountable.** Name the person or team who runs the agent in the PR description, and make sure they have reviewed the change. A PR with nobody behind it will not be merged.
+- **Say that an agent wrote it.** Tick the AI box in the PR template and name the agent/model. Commits made by an agent may use the agent's own identity as author; adding a `Co-Authored-By:` trailer is encouraged.
+- **Follow the checks like anyone else.** The agent must run the linter and both test scripts and report the real results, not assumed ones.
+- **Stay in scope.** One focused change per PR, no drive-by rewrites, no changes to CI, licence or this policy unless an issue asked for it.
+- **Respond to review.** The operator (or the agent under their supervision) must answer maintainer feedback. Silent or looping bot PRs will be closed.
+- **Never act outside the repository.** Agents must not post secrets, contact third parties or open many PRs at once.
+
 Maintainers may apply the same policy to their own work. Pull requests that look unreviewed (for example: code that does not run, invented features, ignored feedback) may be closed without a detailed review.
 
 ## How this project was built
