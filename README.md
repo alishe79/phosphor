@@ -1,75 +1,114 @@
 # ◉ Phosphor
 
-**کلاینت API سبک و گرافیکی برای اوبونتو، با ظاهر مدرن و تم سبز فسفری.**
-یک فایل پایتون، بدون Electron، بدون نیاز به `pip` و بدون حساب کاربری.
+**English** · [فارسی](README.fa.md)
 
-Phosphor برای کسی ساخته شده که می‌خواهد API بزند، پاسخ را ببیند، توکن لاگین را ذخیره کند و درخواست‌ها را مرتب نگه دارد، بدون اینکه برنامه چند صد مگابایت رم بگیرد.
+**A tiny, fast API client for Linux with a phosphor-green UI.**
+One Python file. No Electron, no `pip install`, no account, no telemetry.
 
----
+![Phosphor, dark theme](screenshots/dark.png)
 
-## نصب
+Phosphor is for people who want to send HTTP requests, inspect responses, keep requests organised and chain them with variables, without a multi-hundred-megabyte app running in the background. It is a lightweight alternative to Postman for everyday API work, not a full replacement.
+
+<details>
+<summary>Light theme</summary>
+
+![Phosphor, light theme](screenshots/light.png)
+
+</details>
+
+## Contents
+
+- [Why Phosphor](#why-phosphor)
+- [Install](#install)
+- [Quick start](#quick-start)
+- [Features](#features)
+- [Tests language](#tests-language)
+- [Keyboard shortcuts](#keyboard-shortcuts)
+- [Comparison with Postman](#comparison-with-postman)
+- [Where your data lives](#where-your-data-lives)
+- [Limitations](#limitations)
+- [Troubleshooting](#troubleshooting)
+- [Contributing](#contributing)
+- [AI-assisted development policy](#ai-assisted-development-policy)
+- [How this project was built](#how-this-project-was-built)
+- [Security](#security)
+- [License](#license)
+
+## Why Phosphor
+
+- **Light.** One ~130 KB file. About 40 MB of RAM and near-zero CPU when idle (measured on Ubuntu 24.04 with Python 3.12).
+- **Private.** No account, no cloud sync, no analytics. Everything is stored in one local JSON file.
+- **Complete enough.** Collections, environments, variables, auth, all body types, tests, cURL import, code generation, Postman import/export.
+- **Pleasant.** Dark and light themes, coloured method badges, quick open, a live preview of your URL with variables resolved.
+- **Hackable.** Standard library only. You can read the whole program in an afternoon.
+
+## Install
 
 ```bash
+git clone https://github.com/alishe79/phosphor.git
+cd phosphor
 bash install.sh
 ```
 
-این دستور در صورت نیاز `python3-tk` را نصب می‌کند (تنها بخشی که `sudo` می‌خواهد)، برنامه را به منوی اوبونتو اضافه می‌کند و دستور `phosphor` را می‌سازد.
+The installer adds Phosphor to your application menu and creates a `phosphor` command. It only asks for `sudo` to install `python3-tk` if that is missing.
 
-اگر نصب نمی‌خواهی:
+Prefer not to install anything?
 
 ```bash
 sudo apt install python3-tk
 python3 phosphor.py
 ```
 
-**نیازمندی‌ها:** اوبونتو (یا هر لینوکس دیگر) با Python 3 و `python3-tk` (تست‌شده با Python 3.12 روی اوبونتو ۲۴٫۰۴). هیچ بسته‌ی دیگری لازم نیست.
+**Requirements:** Linux with Python 3 and Tk (`python3-tk`). Tested on Ubuntu 24.04 with Python 3.12. Other distributions should work if Tk is available; reports are welcome.
 
-> اگر قبلاً MiniPost را داشتی، کالکشن‌ها و محیط‌هایت بار اول خودکار به Phosphor منتقل می‌شوند.
+If you used the earlier MiniPost build, your collections and environments are migrated automatically on first launch.
 
----
+**Uninstall**
 
-## شروع سریع
+```bash
+rm -rf ~/.local/share/phosphor ~/.local/bin/phosphor ~/.local/share/applications/phosphor.desktop
+rm -rf ~/.config/phosphor   # optional: also delete your saved data
+```
 
-1. آدرس را در نوار بالا بنویس، متد را انتخاب کن و `Ctrl+Enter` بزن.
-2. پاسخ پایین نمایش داده می‌شود: JSON رنگی و مرتب، کد وضعیت، زمان و حجم.
-3. برای ذخیره‌ی درخواست `Ctrl+S` بزن و یک کالکشن انتخاب کن.
-4. یک دستور cURL را مستقیم در نوار آدرس paste کن؛ خودش به درخواست کامل تبدیل می‌شود.
+## Quick start
 
-### نمونه: لاگین و ذخیره‌ی خودکار توکن
+1. Type a URL, pick a method, press `Ctrl+Enter`.
+2. Read the response: coloured JSON, status, time and size.
+3. Press `Ctrl+S` to save the request into a collection.
+4. Paste a `curl ...` command straight into the URL bar to import it.
 
-1. بالا سمت راست یک Environment بساز (آیکن ⚙) و انتخابش کن.
-2. درخواست لاگین را بفرست. در تب **Tests** بنویس:
+### Example: log in once, reuse the token everywhere
+
+1. Create an environment (⚙ button, top right) and select it.
+2. In your login request, open the **Tests** tab and write:
    ```
    status == 200
    set authToken = json.token
    ```
-3. بعد از هر Send، توکن در Environment فعال ذخیره می‌شود.
-4. در درخواست‌های دیگر، تب **Auth** ← Bearer ← Token: `{{authToken}}`
+3. Send the request. The token is stored in the active environment.
+4. In any other request, open **Auth**, choose **Bearer**, and use `{{authToken}}` as the token.
 
----
+## Features
 
-## قابلیت‌ها
-
-| بخش | توضیح |
+| Area | What you get |
 |---|---|
-| **درخواست‌ها** | GET، POST، PUT، PATCH، DELETE، HEAD، OPTIONS؛ چند تب همزمان؛ ذخیره و بازیابی تب‌ها بعد از بستن برنامه |
-| **Params / Headers** | جدول قابل ویرایش با تیک فعال/غیرفعال؛ Params با URL همگام است |
-| **Auth** | Bearer، Basic، API Key (در هدر یا Query) |
-| **Body** | raw (JSON، XML، HTML، Text، JavaScript)، form-data با آپلود فایل، x-www-form-urlencoded، binary |
-| **کالکشن‌ها** | پوشه و زیرپوشه، تغییر نام، کپی، جابه‌جایی، جستجو، اجرای همه‌ی درخواست‌های یک پوشه (Runner) |
-| **محیط و متغیر** | Environments و Globals با `{{name}}`؛ متغیرهای داخلی `{{$timestamp}}`، `{{$guid}}`، `{{$randomInt}}`، `{{$isoTimestamp}}` |
-| **Tests** | قواعد ساده‌ی یک‌خطی (پایین را ببین) و ذخیره‌ی مقدار پاسخ در متغیر |
-| **پاسخ** | JSON رنگی، حالت Pretty/Raw، جستجو، Copy، ذخیره در فایل، هدرها، کوکی‌ها، نتایج تست |
-| **تولید کد** | cURL، Python (requests)، JavaScript (fetch) |
-| **ایمپورت / اکسپورت** | کالکشن Postman (v2.x)، Environment پست‌من، دستور cURL؛ اکسپورت کالکشن به فرمت Postman |
-| **جستجوی سریع** | `Ctrl+K` بین درخواست‌های ذخیره‌شده و تاریخچه |
-| **راهنمای متغیر** | زیر نوار آدرس، URL باز‌شده نشان داده می‌شود و متغیر تعریف‌نشده هشدار می‌گیرد |
-| **تنظیمات** | پراکسی HTTP، تایم‌اوت، تایید SSL، دنبال کردن ریدایرکت، کوکی‌ها (در حافظه‌ی جلسه) |
-| **ظاهر** | تم تیره و روشن، زوم، آیکن، tooltip |
+| Requests | GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS. Multiple tabs, restored on next launch. |
+| Params and headers | Editable tables with per-row on/off checkboxes. Params stay in sync with the URL. |
+| Auth | Bearer, Basic, API Key (header or query). |
+| Body | raw (JSON, XML, HTML, Text, JavaScript), form-data with file upload, x-www-form-urlencoded, binary. |
+| Collections | Folders and sub-folders, rename, duplicate, move, filter, and a Runner that executes a whole folder. |
+| Environments | Environments and Globals with `{{name}}`. Built-ins: `{{$timestamp}}`, `{{$guid}}`, `{{$randomInt}}`, `{{$isoTimestamp}}`. |
+| Tests | One-line rules, and saving response values into variables. |
+| Response | Coloured JSON, Pretty/Raw, search, copy, save to file, headers, cookies, test results. |
+| Code generation | cURL, Python (requests), JavaScript (fetch). |
+| Import / export | Postman collections (v2.x), Postman environments, cURL commands. Export collections in Postman format. |
+| Quick open | `Ctrl+K` searches saved requests and history. |
+| URL preview | Shows the URL with variables resolved and warns about undefined ones. |
+| Settings | HTTP proxy, timeout, SSL verification, redirects, theme, zoom. |
 
-### زبان Tests
+## Tests language
 
-در تب **Tests** هر خط یک قاعده است:
+Each line of the **Tests** tab is one rule:
 
 ```
 status == 200
@@ -83,123 +122,234 @@ body not contains error
 set authToken = json.token
 ```
 
-- **مقدارها:** `status`، `time` (میلی‌ثانیه)، `size`، `body`، `header NAME`، `json.مسیر`
-- **عملگرها:** `==  !=  <  >  <=  >=  contains  not contains  exists`
-- **ذخیره در متغیر:** `set نام = مقدار`؛ اگر Environment فعال باشد در آن، وگرنه در Globals ذخیره می‌شود
-- خط‌هایی که با `#` شروع شوند نادیده گرفته می‌شوند
+- **Values:** `status`, `time` (ms), `size`, `body`, `header NAME`, `json.path`
+- **Operators:** `==  !=  <  >  <=  >=  contains  not contains  exists`
+- **Saving values:** `set name = value` writes to the active environment, or to Globals if none is selected
+- Lines starting with `#` are ignored
 
-نتیجه‌ی هر قاعده با ✓ یا ✗ در تب **Test results** پاسخ نشان داده می‌شود.
+Results appear with ✓ or ✗ in the **Test results** tab of the response.
 
-### میانبرها
+## Keyboard shortcuts
 
-| میانبر | کار |
+| Shortcut | Action |
 |---|---|
-| `Ctrl+Enter` | ارسال |
-| `Ctrl+S` | ذخیره در کالکشن |
-| `Ctrl+K` | جستجوی سریع |
-| `Ctrl+T` / `Ctrl+W` | تب جدید / بستن تب |
-| `Ctrl+Tab` | تب بعدی |
-| `Ctrl+L` | رفتن به نوار آدرس |
-| `Ctrl+Shift+E` | مدیریت Environmentها |
-| `Ctrl +` / `Ctrl -` | زوم |
+| `Ctrl+Enter` | Send |
+| `Ctrl+S` | Save to a collection |
+| `Ctrl+K` | Quick open |
+| `Ctrl+T` / `Ctrl+W` | New / close tab |
+| `Ctrl+Tab` | Next tab |
+| `Ctrl+L` | Focus the URL bar |
+| `Ctrl+Shift+E` | Manage environments |
+| `Ctrl +` / `Ctrl -` | Zoom |
 
-کلیک وسط روی تب آن را می‌بندد و کلیک راست گزینه‌های بیشتر می‌دهد.
+Middle-click a tab to close it; right-click for more options.
 
----
+## Comparison with Postman
 
-## مقایسه با Postman
+> This table reflects general knowledge of Postman, which changes often. Check its current version before deciding.
+> Phosphor does not aim to replace Postman. It aims to be faster, lighter and simpler for day-to-day API work.
 
-> این جدول بر اساس دانسته‌های عمومی درباره‌ی Postman است و Postman مرتب تغییر می‌کند؛ قبل از تصمیم نهایی، نسخه‌ی فعلی آن را هم نگاه کن.
-> هدف Phosphor جایگزین کامل Postman نیست. هدفش این است که برای کار روزمره‌ی API سریع‌تر، سبک‌تر و ساده‌تر باشد.
+### Weight and setup
 
-### سبکی و نصب
-
-| ویژگی | Phosphor | Postman |
+| | Phosphor | Postman |
 |---|---|---|
-| ساختار | یک فایل پایتون (حدود ۱۳۰ کیلوبایت) | برنامه‌ی Electron (چند صد مگابایت نصب) |
-| مصرف رم در حالت بیکار | حدود ۴۰ مگابایت (اندازه‌گیری‌شده) | معمولاً چند صد مگابایت |
-| مصرف CPU در حالت بیکار | عملاً صفر (برنامه فقط هنگام ارسال درخواست کار می‌کند) | وابسته به نسخه و همگام‌سازی؛ معمولاً بیشتر |
-| نیاز به حساب کاربری | ندارد | برای بخش زیادی از قابلیت‌ها معمولاً دارد |
-| نیاز به اینترنت برای اجرا | ندارد | بخش‌های ابری به آن وابسته‌اند |
-| وابستگی‌ها | فقط `python3-tk` | همراه بسته‌ی خودش |
-| حریم خصوصی داده | همه‌چیز در یک فایل محلی (`~/.config/phosphor/data.json`) | کالکشن‌ها معمولاً در فضای ابری |
-| سورس | یک فایل قابل خواندن و تغییر | بسته |
+| Form | One Python file (~130 KB) | Electron app (hundreds of MB installed) |
+| Idle RAM | ~40 MB (measured) | Typically several hundred MB |
+| Idle CPU | Near zero (only works while a request runs) | Varies by version and sync activity |
+| Account required | No | Usually, for much of the feature set |
+| Works offline | Yes | Cloud features need a connection |
+| Dependencies | `python3-tk` | Bundled |
+| Your data | One local JSON file | Collections typically live in the cloud |
+| Source | One readable file | Closed |
 
-### قابلیت‌ها
+### Features both have
 
-| قابلیت | Phosphor | Postman |
+| Feature | Phosphor | Postman |
 |---|---|---|
-| درخواست HTTP با همه‌ی متدها | ✅ | ✅ |
-| کالکشن، پوشه و زیرپوشه | ✅ | ✅ |
-| Environment و Globals و متغیر `{{}}` | ✅ | ✅ |
-| Params، Headers، Auth، Body | ✅ | ✅ |
-| form-data و آپلود فایل | ✅ | ✅ |
-| تولید کد (cURL، Python، JS) | ✅ (۳ زبان) | ✅ (زبان‌های بیشتر) |
-| ایمپورت cURL با paste در نوار آدرس | ✅ | ✅ |
-| ایمپورت/اکسپورت کالکشن Postman | ✅ | ✅ |
-| تست و ذخیره‌ی توکن در متغیر | ✅ (قواعد ساده‌ی یک‌خطی) | ✅ (اسکریپت JavaScript کامل) |
-| Runner برای اجرای یک پوشه | ✅ (ساده) | ✅ (پیشرفته، با داده‌ی ورودی و گزارش) |
-| جستجوی سریع `Ctrl+K` | ✅ | ✅ |
-| تم تیره و روشن | ✅ | ✅ |
-| هشدار متغیر تعریف‌نشده زیر نوار آدرس | ✅ | ✅ (با رنگ‌بندی متغیر) |
-| پراکسی | ✅ | ✅ |
+| All HTTP methods | ✅ | ✅ |
+| Collections, folders, sub-folders | ✅ | ✅ |
+| Environments, globals, `{{variables}}` | ✅ | ✅ |
+| Params, headers, auth, all body types | ✅ | ✅ |
+| form-data with file upload | ✅ | ✅ |
+| Code generation | ✅ (3 languages) | ✅ (more languages) |
+| cURL import by pasting | ✅ | ✅ |
+| Postman collection import / export | ✅ | ✅ |
+| Tests and saving tokens into variables | ✅ (simple one-line rules) | ✅ (full JavaScript) |
+| Folder Runner | ✅ (basic) | ✅ (advanced: data files, reports) |
+| Quick open | ✅ | ✅ |
+| Dark and light themes | ✅ | ✅ |
+| Proxy | ✅ | ✅ |
 
-### چیزهایی که Postman دارد و Phosphor ندارد
+### What Postman has that Phosphor does not
 
-| قابلیت | Phosphor | Postman |
+| Feature | Phosphor | Postman |
 |---|---|---|
-| اسکریپت پیش از درخواست (pre-request) و اسکریپت JavaScript | ❌ | ✅ |
-| همکاری تیمی و همگام‌سازی ابری | ❌ | ✅ |
-| Mock Server و Monitor | ❌ | ✅ |
-| WebSocket، gRPC، GraphQL اختصاصی | ❌ | ✅ |
-| تولید مستندات API | ❌ | ✅ |
-| احراز هویت OAuth 2.0 و AWS Signature | ❌ | ✅ |
-| نسخه‌ی ویندوز و مک | ⚠️ ممکن است با Python و Tk اجرا شود، ولی روی اوبونتو تست شده | ✅ |
+| Pre-request and full JavaScript scripting | ❌ | ✅ |
+| Team collaboration and cloud sync | ❌ | ✅ |
+| Mock servers and monitors | ❌ | ✅ |
+| WebSocket, gRPC, dedicated GraphQL | ❌ | ✅ |
+| API documentation generation | ❌ | ✅ |
+| OAuth 2.0 and AWS Signature auth | ❌ | ✅ |
+| Windows and macOS builds | ⚠️ Tested on Ubuntu only | ✅ |
 
-### جمع‌بندی
+**Choose Phosphor** if you value speed, a small footprint, privacy and a clean UI, and your work is mostly sending requests, reading responses and chaining tokens.
+**Keep Postman** if you work in a team or need advanced scripting, mock servers, OAuth, WebSocket or gRPC.
+You can use both: export from Postman and import into Phosphor via **File → Import**.
 
-**Phosphor را انتخاب کن اگر:** به سرعت، سبکی، حریم خصوصی و ظاهر تمیز اهمیت می‌دهی، کارت بیشتر زدن API، دیدن پاسخ و ذخیره‌ی توکن است، و نمی‌خواهی حساب کاربری بسازی یا چیز سنگینی نصب کنی.
-
-**Postman را نگه دار اگر:** تیمی کار می‌کنی، به اسکریپت‌نویسی پیشرفته، Mock Server، OAuth یا WebSocket و gRPC نیاز داری.
-
-می‌توانی هر دو را کنار هم داشته باشی: کالکشن را از Postman اکسپورت کن و در Phosphor ایمپورت کن (File ← Import).
-
----
-
-## محل ذخیره‌ی داده‌ها
-
-همه‌چیز در یک فایل JSON ذخیره می‌شود:
+## Where your data lives
 
 ```
 ~/.config/phosphor/data.json
 ```
 
-شامل کالکشن‌ها، Environmentها، تاریخچه (۱۰۰ درخواست آخر)، تنظیمات و تب‌های باز. برای پشتیبان‌گیری همین فایل را کپی کن. برای شروع از صفر، آن را حذف کن.
+Collections, environments, the last 100 history entries, settings and open tabs. Copy this file to back up; delete it to start fresh.
 
-> توکن‌ها و رمزها داخل این فایل به‌صورت متن ساده ذخیره می‌شوند. آن را جایی عمومی نگذار و در گیت کامیت نکن.
+> Tokens and passwords are stored there as plain text. Do not share the file or commit it to a repository.
 
----
+## Limitations
 
-## محدودیت‌ها
+- HTTP and HTTPS only (no WebSocket or gRPC).
+- No JavaScript scripting; the Tests language is intentionally small.
+- Responses larger than 25 MB are truncated, and the viewer shows at most ~1.5 million characters. Use **Save…** to write the full body to disk.
+- Cookies live in memory for the session and are cleared when the app closes (Tools → Cookies shows them).
+- Developed and tested on Ubuntu only.
 
-- فقط HTTP/HTTPS (بدون WebSocket و gRPC).
-- اسکریپت JavaScript ندارد؛ به‌جایش زبان ساده‌ی Tests هست.
-- پاسخ‌ها تا ۲۵ مگابایت دریافت می‌شوند و برای روان ماندن رابط، حداکثر حدود ۱٫۵ میلیون کاراکتر نمایش داده می‌شود (برای کل بدنه از دکمه‌ی **Save…** استفاده کن).
-- کوکی‌ها فقط در حافظه‌ی جلسه نگه داشته می‌شوند و بعد از بستن برنامه پاک می‌شوند (از منوی Tools ← Cookies قابل مشاهده‌اند).
+## Troubleshooting
 
-## عیب‌یابی
-
-| مشکل | راه حل |
+| Problem | Fix |
 |---|---|
-| `ModuleNotFoundError: No module named 'tkinter'` | `sudo apt install python3-tk` |
-| `Can't open a display` | برنامه را داخل محیط گرافیکی اجرا کن (نه SSH بدون X) |
-| دستور `phosphor` پیدا نمی‌شود | یک بار خارج و دوباره وارد سشن شو، یا `~/.local/bin` را به `PATH` اضافه کن |
-| خطای گواهی SSL | در تب **Settings** درخواست، گزینه‌ی Verify SSL را خاموش کن (فقط برای سرور خودت) |
-| متن‌ها کوچک یا بزرگ‌اند | `Ctrl +` و `Ctrl -` |
+| `No module named 'tkinter'` | `sudo apt install python3-tk` |
+| `Can't open a display` | Run inside a graphical session (not plain SSH without X forwarding) |
+| `phosphor: command not found` | Log out and in again, or add `~/.local/bin` to your `PATH` |
+| SSL certificate error | In the request's **Settings** tab, turn off *Verify SSL certificate* (only for servers you control) |
+| Text too small or large | `Ctrl +` / `Ctrl -` |
 
-## حذف
+## Contributing
+
+Contributions are welcome: bug reports, ideas, documentation, translations and code. This section is the full guide.
+
+### Ways to help
+
+- **Report a bug.** Open an issue with: what you did, what you expected, what happened, your distro and Python version (`python3 --version`), and a screenshot or the terminal output if there is one. A request that reproduces the bug, with secrets removed, is ideal.
+- **Suggest a feature.** Open an issue first and describe the problem you want solved, not only the solution. Small, focused features that fit the project goals are most likely to be accepted.
+- **Improve the docs.** Typos, clearer wording and translations are very welcome.
+- **Test on other distributions.** Tell us what worked and what did not (Fedora, Arch, Debian, other Python versions).
+- **Send code.** See below.
+
+### Project principles
+
+Pull requests are judged against these goals. Please keep them in mind before you start.
+
+1. **One file, standard library only.** `phosphor.py` must stay a single file with no third-party packages.
+2. **Light.** No background polling. The app should use near-zero CPU while idle. Do blocking work in a thread and report back through the existing queue (`run_bg` / `post`).
+3. **Private.** No telemetry, no automatic network calls, no external services. The app only talks to the servers the user asks it to.
+4. **Careful with user data.** Never lose saved data. Write files atomically, and keep old data loadable (add defaults instead of breaking the format).
+5. **Consistent UI.** Reuse the existing styles and palette. Every visual change must look right in both the dark and the light theme.
+6. **Honest and simple.** Prefer a small, readable solution over a clever one. Avoid new settings when a good default will do.
+
+### Development setup
 
 ```bash
-rm -rf ~/.local/share/phosphor ~/.local/bin/phosphor ~/.local/share/applications/phosphor.desktop
-rm -rf ~/.config/phosphor   # حذف داده‌ها (اختیاری)
+git clone https://github.com/alishe79/phosphor.git
+cd phosphor
+sudo apt install python3-tk xvfb      # xvfb is only needed for the GUI test
+python3 phosphor.py
 ```
+
+Run the checks before you open a pull request:
+
+```bash
+python3 -m pip install --user pyflakes        # or: sudo apt install python3-pyflakes
+python3 -m pyflakes phosphor.py               # must print nothing
+python3 tests/test_logic.py                   # request building, tests language, import/export
+xvfb-run -a python3 tests/test_gui.py         # drives the real interface on a virtual display
+```
+
+`test_gui.py` exercises tabs, environments, saving, quick open, the runner, themes and session restore. Set `PHOSPHOR_SHOTS=/some/dir` to also save screenshots (needs ImageMagick's `import`).
+
+### Code layout
+
+`phosphor.py` is organised in sections, top to bottom:
+
+| Section | Contents |
+|---|---|
+| data / storage | Loading and saving `data.json` |
+| variables | `{{name}}` substitution |
+| request building / sending | `prepare()` and `execute()` (no UI code) |
+| tests | The one-line tests language |
+| import / export / code generation | cURL and Postman conversion, code snippets |
+| widgets | `Tip`, `SegTabs`, `DocTabs`, `KVTable` |
+| request tab | `RequestPane`, one per open tab |
+| application | `App`: theme, sidebar, collections, dialogs, session |
+
+Keep logic that does not need Tk (parsing, building requests, tests) in the top sections so it stays testable without a display.
+
+### Code style
+
+- Follow the style of the surrounding code. Four-space indentation, f-strings, short functions.
+- Keep lines readable. Existing code goes up to about 180 characters, but shorter is better.
+- Name things clearly; comment the *why*, not the *what*.
+- `pyflakes` must be clean.
+- Do not reformat code you are not changing; it makes reviews hard.
+- New user-visible features need a line in this README (Features table or Tests language).
+
+### Pull request rules
+
+1. **One thing per pull request.** A bug fix, a feature or a refactor, not all three.
+2. **Open an issue first** for anything larger than a small fix, so effort is not wasted.
+3. **Run the checks** listed above and say so in the PR description.
+4. **Add or update tests** for logic you change. For UI changes, say how you verified them.
+5. **UI changes need screenshots** in both the dark and the light theme.
+6. **Do not break saved data.** If you change the data format, old `data.json` files must still load.
+7. **No new dependencies** and no splitting the program into several files without prior discussion.
+8. **Write a clear title and description.** Explain what changed and why. Link the issue it closes.
+9. **Be ready for review.** Maintainers may ask for changes or for you to explain a decision. A PR can be closed if it goes quiet for a long time.
+10. **Disclose AI assistance** as described in the next section.
+
+### Commit messages
+
+Short imperative subject line (about 50–70 characters), then a blank line and an optional explanation of the *why*.
+
+```
+Fix crash when closing a tab during a request
+
+The worker thread tried to update widgets of a destroyed tab. Clear the
+pane's token on close so late results are ignored.
+```
+
+### Code of conduct
+
+Be kind and assume good intent. Critique code, not people. Harassment, personal attacks and discrimination are not tolerated, and the maintainers may remove comments or block users who engage in them. Everyone is welcome here, whatever their experience level or language; questions from beginners are fine.
+
+## AI-assisted development policy
+
+**Using AI tools, including "vibe coding", to contribute to Phosphor is allowed.** We care about the quality and safety of what is merged, not about which tool produced it. This project itself was built with AI assistance (see [below](#how-this-project-was-built)), so a blanket ban would be hypocritical. What we ask for is close human supervision.
+
+If you use an AI assistant, you agree that:
+
+1. **You are the author and you are responsible.** The assistant is a tool. You must read and understand every line you submit, and be able to explain it in review.
+2. **You tested it.** Run the checks above and, for UI work, actually run the app and look at the result. "The model said it works" is not testing.
+3. **You verified the facts.** AI tools invent APIs, options and behaviour. Check against the Python/Tk documentation and by running the code. Do not add claims to the docs that you have not verified.
+4. **You disclose it.** Tick the AI-assistance box in the pull request template and mention the tool in the description. A short note is enough, and it never counts against you.
+5. **Keep changes small and reviewable.** Do not submit large, auto-generated rewrites or mass reformatting. Review bots and humans both struggle with them, and they will be closed.
+6. **Respect the project principles** (single file, no dependencies, no telemetry), even if the assistant suggests otherwise.
+7. **Mind secrets and licences.** Do not paste tokens, private data or data from your `data.json` into AI tools or into issues. Do not submit code you know or suspect was copied from a project with an incompatible licence.
+8. **Stay in the loop.** If a maintainer asks a question about your change, answer it yourself. Pasting a model's reply that you have not understood or checked is not acceptable.
+
+Maintainers may apply the same policy to their own work. Pull requests that look unreviewed (for example: code that does not run, invented features, ignored feedback) may be closed without a detailed review.
+
+## How this project was built
+
+Phosphor was created in conversation with an AI assistant (Claude by Anthropic) under the maintainer's direction and review. The assistant wrote most of the first implementation; the interface was run on a virtual display, exercised with the automated tests in `tests/`, and visually inspected. The maintainer decides the direction, reviews changes and is responsible for what ships.
+
+We mention this openly because we think transparency is better than guessing, and because it shows what careful AI-assisted work can look like: small steps, real tests, human judgement.
+
+## Security
+
+If you find a security problem (for example, a way a crafted collection file or server response could run code or leak data), please **do not open a public issue**. Use GitHub's *Report a vulnerability* button under the repository's **Security** tab, or contact the maintainer privately. Include steps to reproduce.
+
+Reminder: Phosphor stores tokens and passwords in `~/.config/phosphor/data.json` as plain text. Protect that file like any other credential store.
+
+## License
+
+MIT. Use, modify and share freely. See [LICENSE](LICENSE).
